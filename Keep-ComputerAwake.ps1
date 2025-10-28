@@ -57,6 +57,30 @@ if ($PSVersionTable.PSVersion.Major -lt 5 -or -not $IsWindows -and $PSVersionTab
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+# Hide the PowerShell console window
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+
+public class WindowHelper
+{
+    [DllImport("kernel32.dll")]
+    public static extern IntPtr GetConsoleWindow();
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    public const int SW_HIDE = 0;
+    public const int SW_SHOW = 5;
+}
+"@
+
+# Hide the console window immediately if not in NoTray mode
+if (-not $NoTray) {
+    $consolePtr = [WindowHelper]::GetConsoleWindow()
+    [WindowHelper]::ShowWindow($consolePtr, [WindowHelper]::SW_HIDE) | Out-Null
+}
+
 # Define the SetThreadExecutionState P/Invoke signature
 # This is the same approach used by PowerToys Awake
 Add-Type @"

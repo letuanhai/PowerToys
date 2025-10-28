@@ -47,22 +47,43 @@ The PowerToys Awake tool uses the following approach:
 
 ## Usage
 
+### Running Without Console Window
+
+The script automatically hides the PowerShell console window when running with the system tray icon (default mode). There are two ways to run the script:
+
+#### Method 1: VBScript Launcher (Recommended for Windows Explorer)
+Double-click **`Keep-ComputerAwake.vbs`** from Windows Explorer. This will launch the PowerShell script completely hidden without any console window appearing.
+
+The VBScript launcher can also be used with parameters:
+```cmd
+wscript Keep-ComputerAwake.vbs -TimeMinutes 30
+wscript Keep-ComputerAwake.vbs -ScreenOff
+```
+
+#### Method 2: Direct PowerShell Execution
+The PowerShell script now automatically hides its console window when running with the system tray icon. Simply run:
+```powershell
+.\Keep-ComputerAwake.ps1
+```
+
+The console will hide itself immediately after starting. If you use the `-NoTray` parameter, the console window will remain visible so you can see the status output.
+
 ### Basic Usage
 
 ```powershell
-# Keep computer and screen awake indefinitely with system tray icon
+# Keep computer and screen awake indefinitely with system tray icon (window hidden)
 .\Keep-ComputerAwake.ps1
 
-# Keep awake for 30 minutes
+# Keep awake for 30 minutes (window hidden)
 .\Keep-ComputerAwake.ps1 -TimeMinutes 30
 
-# Keep computer awake but allow screen to turn off
+# Keep computer awake but allow screen to turn off (window hidden)
 .\Keep-ComputerAwake.ps1 -ScreenOff
 
-# Run without system tray icon
+# Run without system tray icon (console window remains visible)
 .\Keep-ComputerAwake.ps1 -NoTray
 
-# Combination: 60 minutes with screen off
+# Combination: 60 minutes with screen off (window hidden)
 .\Keep-ComputerAwake.ps1 -TimeMinutes 60 -ScreenOff
 ```
 
@@ -161,20 +182,32 @@ This ensures your computer returns to its normal power settings.
 
 ## Troubleshooting
 
+### Console Window Still Appears
+- **Use the VBScript launcher**: Double-click `Keep-ComputerAwake.vbs` instead of the `.ps1` file
+- The PowerShell script automatically hides its window when using the system tray icon
+- If running with `-NoTray`, the console window will remain visible by design
+
 ### Script Doesn't Work
 - Ensure you're running on Windows
 - Check if group policies restrict power management
 - Try running PowerShell as Administrator
+- Check PowerShell execution policy: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
 
 ### System Tray Icon Not Appearing
 - Check if system tray is enabled in Windows
 - Ensure Windows Forms assemblies can be loaded
 - Try running without `-NoTray` parameter
+- Check if the script is actually running (look for `powershell.exe` in Task Manager)
 
 ### Screen Still Turns Off
 - Verify you're not using the `-ScreenOff` parameter
 - Check if display timeout is enforced by group policy
 - Ensure the script is still running
+- Some displays may have their own power-saving features
+
+### How to Stop the Script
+- Right-click the system tray icon and select "Exit"
+- If you can't find the tray icon, open Task Manager and end the `powershell.exe` process running the script
 
 ## Comparison with PowerToys Awake
 
@@ -183,7 +216,9 @@ This ensures your computer returns to its normal power settings.
 | Keep System Awake | ✓ | ✓ |
 | Keep Display On | ✓ | ✓ |
 | System Tray Icon | ✓ | ✓ |
+| Hidden Console Window | ✓ | ✓ |
 | Timed Operation | ✓ | ✓ |
+| Toggle Display Mode | ✓ | ✓ |
 | Integration with PowerToys | ✗ | ✓ |
 | Settings Persistence | ✗ | ✓ |
 | Process Binding | ✗ | ✓ |
