@@ -1,10 +1,31 @@
-# Keep Computer Awake PowerShell Script
+# Keep Computer Awake PowerShell Script & Module
 
-A PowerShell script that prevents your computer and screen from sleeping, based on the same approach used by PowerToys Awake.
+A PowerShell script and module that prevents your computer and screen from sleeping, based on the same approach used by PowerToys Awake.
 
 ## Overview
 
-This script uses the Windows `SetThreadExecutionState` API (from `kernel32.dll`) to keep your computer awake. This is the same method used by Microsoft's PowerToys Awake utility.
+This implementation uses the Windows `SetThreadExecutionState` API (from `kernel32.dll`) to keep your computer awake. This is the same method used by Microsoft's PowerToys Awake utility.
+
+## Available Formats
+
+This functionality is available in two formats:
+
+1. **PowerShell Module** (`KeepComputerAwake/`) - Recommended for integration into scripts and automation
+2. **Standalone Script** (`Keep-ComputerAwake.ps1`) - For quick execution and one-off usage
+
+### When to Use Each
+
+- **Use the Module** if you want to:
+  - Integrate awake functionality into your PowerShell scripts
+  - Import and reuse the functions across multiple scripts
+  - Have a clean, organized installation in your PowerShell modules directory
+  - Call `Start-ComputerAwake` and `Stop-ComputerAwake` from your code
+
+- **Use the Script** if you want to:
+  - Quickly run from Windows Explorer (double-click)
+  - Use without installing a module
+  - Have a self-contained file
+  - Launch via VBScript for hidden execution
 
 ## How It Works
 
@@ -94,6 +115,59 @@ The console will hide itself immediately after starting. If you use the `-NoTray
 | `-TimeMinutes` | Integer | Duration in minutes to keep awake. Omit for indefinite operation. |
 | `-ScreenOff` | Switch | Allows the screen to turn off while keeping the system awake. |
 | `-NoTray` | Switch | Runs without creating a system tray icon. |
+
+## Using the PowerShell Module
+
+For better integration into your scripts and automation workflows, use the **KeepComputerAwake** PowerShell module.
+
+### Installation
+
+1. Copy the `KeepComputerAwake` folder to one of your PowerShell module paths:
+   ```powershell
+   # User modules (recommended)
+   Copy-Item -Path ".\KeepComputerAwake" -Destination "$HOME\Documents\WindowsPowerShell\Modules\" -Recurse
+
+   # Or for PowerShell 7+
+   Copy-Item -Path ".\KeepComputerAwake" -Destination "$HOME\Documents\PowerShell\Modules\" -Recurse
+   ```
+
+2. Import the module:
+   ```powershell
+   Import-Module KeepComputerAwake
+   ```
+
+### Module Usage
+
+```powershell
+# Import the module
+Import-Module KeepComputerAwake
+
+# Keep computer and screen awake indefinitely
+Start-ComputerAwake
+
+# Keep awake for 30 minutes with hidden console
+Start-ComputerAwake -TimeMinutes 30 -HideConsole
+
+# Keep computer awake but allow screen to turn off
+Start-ComputerAwake -ScreenOff
+
+# Stop the awake state programmatically
+Stop-ComputerAwake
+```
+
+### Module Functions
+
+- **Start-ComputerAwake** - Starts keeping the computer awake
+  - Parameters: `-TimeMinutes`, `-ScreenOff`, `-NoTray`, `-HideConsole`
+- **Stop-ComputerAwake** - Stops the awake state and returns to normal power settings
+
+### Module Benefits
+
+- Clean, reusable API for your scripts
+- Can be called from multiple scripts simultaneously
+- Better integration with PowerShell workflows
+- Programmatically start and stop awake state
+- See `KeepComputerAwake/README.md` for complete module documentation
 
 ### System Tray Features
 
