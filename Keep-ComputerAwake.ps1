@@ -335,7 +335,11 @@ try {
 
         # Register cleanup on script termination
         $null = Register-EngineEvent -SourceIdentifier PowerShell.Exiting -Action {
-            Reset-AwakeState
+            try {
+                Reset-AwakeState
+            } catch {
+                # Silently handle errors during exit
+            }
         }
 
         # Start the system tray (this blocks until exit is clicked)
@@ -358,19 +362,57 @@ try {
 }
 finally {
     # Clean up - reset the awake state
-    Write-Host ""
-    Write-Host "Cleaning up..." -ForegroundColor Yellow
-    Reset-AwakeState
-
-    if ($script:timer) {
-        $script:timer.Stop()
-        $script:timer.Dispose()
+    # Suppress errors if pipeline has been stopped (e.g., Ctrl+C)
+    try {
+        Write-Host ""
+        Write-Host "Cleaning up..." -ForegroundColor Yellow
+    } catch {
+        # Ignore if pipeline is stopped
     }
 
-    if ($script:notifyIcon) {
-        $script:notifyIcon.Visible = $false
-        $script:notifyIcon.Dispose()
+    # Unregister event handler
+    try {
+        Unregister-Event -SourceIdentifier PowerShell.Exiting -ErrorAction SilentlyContinue
+    } catch {
+        # Ignore if event doesn't exist
     }
 
-    Write-Host "Script terminated. Computer returning to normal power settings." -ForegroundColor Green
+    # Reset awake state
+    try {
+        Reset-AwakeState
+    } catch {
+        # Silently reset if there's an error
+        try {
+            $state = [PowerManagement+ExecutionState]::ES_CONTINUOUS
+            [void][PowerManagement]::SetThreadExecutionState($state)
+        } catch {
+            # Final attempt failed, ignore
+        }
+    }
+
+    # Clean up timer
+    try {
+        if ($script:timer) {
+            $script:timer.Stop()
+            $script:timer.Dispose()
+        }
+    } catch {
+        # Ignore disposal errors
+    }
+
+    # Clean up tray icon
+    try {
+        if ($script:notifyIcon) {
+            $script:notifyIcon.Visible = $false
+            $script:notifyIcon.Dispose()
+        }
+    } catch {
+        # Ignore disposal errors
+    }
+
+    try {
+        Write-Host "Script terminated. Computer returning to normal power settings." -ForegroundColor Green
+    } catch {
+        # Ignore if pipeline is stopped
+    }
 }
