@@ -255,7 +255,7 @@ function Start-SystemTray {
         $displayStatus = if ($script:keepDisplayOn) { "Screen ON" } else { "Screen OFF" }
         $timeStatus = Get-TimeRemaining
         $elapsed = (Get-Date) - $script:startTime
-        $elapsedStr = "{0:D2}:{1:D2}:{2:D2}" -f [math]::Floor($elapsed.TotalHours), $elapsed.Minutes, $elapsed.Seconds
+        $elapsedStr = "{0:D2}:{1:D2}:{2:D2}" -f [int][math]::Floor($elapsed.TotalHours), [int]$elapsed.Minutes, [int]$elapsed.Seconds
 
         $message = "Status: Active`n" +
                    "Display: $displayStatus`n" +
