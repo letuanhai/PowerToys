@@ -105,6 +105,7 @@ Stop-ComputerAwake
 - **System Tray Icon**: Provides a system tray icon with:
   - Status display
   - Toggle display mode (keep screen on/off)
+  - **Set Timer** - Change duration or set to indefinite while running
   - Right-click context menu
   - Tooltip with remaining time
   - Easy exit option

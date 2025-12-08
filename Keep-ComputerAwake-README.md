@@ -174,10 +174,11 @@ Stop-ComputerAwake
 When running with the system tray icon (default):
 
 - **Tooltip**: Shows current status, display mode, and time remaining
-- **Double-click**: Displays detailed status window
+- **Double-click**: Displays detailed status window with elapsed time
 - **Right-click menu**:
   - View current status
   - Toggle display mode (keep screen on/off)
+  - **Set Timer...** - Change the duration or set to indefinite while running
   - Exit the script
 
 ## Examples

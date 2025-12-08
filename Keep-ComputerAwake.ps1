@@ -238,6 +238,82 @@ function Start-SystemTray {
     $menuItemSeparator2 = New-Object System.Windows.Forms.ToolStripSeparator
     $contextMenu.Items.Add($menuItemSeparator2) | Out-Null
 
+    $menuItemSetTimer = New-Object System.Windows.Forms.ToolStripMenuItem
+    $menuItemSetTimer.Text = "Set Timer..."
+    $menuItemSetTimer.Add_Click({
+        # Create a simple input form
+        $inputForm = New-Object System.Windows.Forms.Form
+        $inputForm.Text = "Set Timer"
+        $inputForm.Size = New-Object System.Drawing.Size(320, 180)
+        $inputForm.StartPosition = "CenterScreen"
+        $inputForm.FormBorderStyle = "FixedDialog"
+        $inputForm.MaximizeBox = $false
+        $inputForm.MinimizeBox = $false
+
+        $label = New-Object System.Windows.Forms.Label
+        $label.Location = New-Object System.Drawing.Point(10, 20)
+        $label.Size = New-Object System.Drawing.Size(280, 20)
+        $label.Text = "Enter duration in minutes (0 for indefinite):"
+        $inputForm.Controls.Add($label)
+
+        $textBox = New-Object System.Windows.Forms.TextBox
+        $textBox.Location = New-Object System.Drawing.Point(10, 50)
+        $textBox.Size = New-Object System.Drawing.Size(280, 20)
+        $textBox.Text = "30"
+        $inputForm.Controls.Add($textBox)
+
+        $okButton = New-Object System.Windows.Forms.Button
+        $okButton.Location = New-Object System.Drawing.Point(75, 90)
+        $okButton.Size = New-Object System.Drawing.Size(75, 30)
+        $okButton.Text = "OK"
+        $okButton.DialogResult = [System.Windows.Forms.DialogResult]::OK
+        $inputForm.Controls.Add($okButton)
+        $inputForm.AcceptButton = $okButton
+
+        $cancelButton = New-Object System.Windows.Forms.Button
+        $cancelButton.Location = New-Object System.Drawing.Point(160, 90)
+        $cancelButton.Size = New-Object System.Drawing.Size(75, 30)
+        $cancelButton.Text = "Cancel"
+        $cancelButton.DialogResult = [System.Windows.Forms.DialogResult]::Cancel
+        $inputForm.Controls.Add($cancelButton)
+        $inputForm.CancelButton = $cancelButton
+
+        $result = $inputForm.ShowDialog()
+
+        if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+            $minutes = 0
+            if ([int]::TryParse($textBox.Text, [ref]$minutes)) {
+                if ($minutes -lt 0) {
+                    [System.Windows.Forms.MessageBox]::Show("Please enter a valid positive number.", "Invalid Input", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+                }
+                elseif ($minutes -eq 0) {
+                    # Set to indefinite
+                    $script:endTime = $null
+                    $script:notifyIcon.ShowBalloonTip(2000, "Keep Awake", "Timer set to indefinite", [System.Windows.Forms.ToolTipIcon]::Info)
+                }
+                else {
+                    # Set new end time
+                    $script:endTime = (Get-Date).AddMinutes($minutes)
+                    $script:notifyIcon.ShowBalloonTip(2000, "Keep Awake", "Timer set to $minutes minutes", [System.Windows.Forms.ToolTipIcon]::Info)
+                }
+
+                # Update tooltip immediately
+                $displayStatus = if ($script:keepDisplayOn) { "Screen ON" } else { "Screen OFF" }
+                $timeStatus = Get-TimeRemaining
+                $script:notifyIcon.Text = "Keep Awake - $displayStatus - $timeStatus"
+            }
+            else {
+                [System.Windows.Forms.MessageBox]::Show("Please enter a valid number.", "Invalid Input", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Warning)
+            }
+        }
+
+        $inputForm.Dispose()
+    })
+    $contextMenu.Items.Add($menuItemSetTimer) | Out-Null
+
+    $menuItemSeparator3 = New-Object System.Windows.Forms.ToolStripSeparator
+    $contextMenu.Items.Add($menuItemSeparator3) | Out-Null
+
     $menuItemExit = New-Object System.Windows.Forms.ToolStripMenuItem
     $menuItemExit.Text = "Exit"
     $menuItemExit.Add_Click({
